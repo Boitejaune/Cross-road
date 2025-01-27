@@ -29,7 +29,7 @@ Les 4 premières sections sont représentés par des "message queues", vehicles 
 ---
 Shared resources :
 - 1 listes, une pour chaque route avec les voitures au feu
-- caractéristiques des voitures (créées par normal_traffic_gen et priotiry_traffic_gen) --> source, dest, position, priorité, et sémaphore ? Ou sémaphore par route
+- caractéristiques des voitures (créées par normal_traffic_gen et priotiry_traffic_gen) --> source, dest, position, priorité, mouvement (tout droit, à droite, à gauche) Osef destination du coup ? A gauche doit attendre qu'en face ils soient passés, ou si les deux vont à gauche ça passe ; bloque les autres ? A voir après
 - Etat actuel des feux
 
 ---
