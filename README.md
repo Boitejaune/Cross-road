@@ -14,15 +14,15 @@ Si il y a une ambulance, police, etc..., elle doit pouvoir passer le plus rapide
 
 Spec technique :
 
-• normal_traffic_gen: Traffic normale, on génère les voitures allant d'une source à une destination de manière aléatoire.
+• normal_traffic_gen: Traffic normale, on génère les voitures allant d'une source à une destination de manière aléatoire. (Envoie au coordinator : Source,Destination,Non prioritaire)
 
-• priority_traffic_gen: Présence de véhicule prioritaire et a la priorité.
+• priority_traffic_gen: Présence de véhicule prioritaire et a la priorité. (Envoie au coordinator : Source,Destination,Prioritaire + Envoie un signal aux lights)
 
-• coordinator: Permet à tout les véhicules de rouler selon la régulations du traffique et les feux.
+• coordinator: Permet à tout les véhicules de rouler selon la régulations du traffique et les feux. (Met les véhicules dans les liste FIFO correspondant à des routes puis updates l'avancé avec les feux)
 
-• lights: Change la couleur des feux à intervalle régulier et 
+• lights: Change la couleur des feux à intervalle régulier et s'adapte au véhicule prioritaire. (Espace shared memory) 
 
-• display: Permet de visualiser
+• display: Permet de visualiser.
 
 Les 4 premières sections sont représentés par des "message queues", vehicles are represented via messages coding the vehicle’s attributes. Lorsqu'il y a un véhicule prioritaire il envoie un signal au processus "lights". Létats des feux est stocké dans un "shared memory", accessible au process "coordinator". Les communications avec "display" se font pas sockets.
 
