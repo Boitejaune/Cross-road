@@ -27,4 +27,6 @@ Spec technique :
 Les 4 premières sections sont représentés par des "message queues", vehicles are represented via messages coding the vehicle’s attributes. Lorsqu'il y a un véhicule prioritaire il envoie un signal au processus "lights". Létats des feux est stocké dans un "shared memory", accessible au process "coordinator". Les communications avec "display" se font pas sockets.
 
 ---
-
+Shared resources :
+- 1 listes, une pour chaque route avec les voitures au feu
+- caractéristiques des voitures (créées par normal_traffic_gen et priotiry_traffic_gen) --> source, dest, position, priorité, et sémaphore ? Ou sémaphore par route
