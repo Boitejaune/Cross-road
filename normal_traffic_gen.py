@@ -6,8 +6,8 @@ def worker(queue, data_ready):
     print("Starting thread:", threading.current_thread().name)    
     data_ready.wait()
     value = queue.get()
-    data[0] = random.uniform[0,4]
-    data[1] = random.uniform[0,4]
+    data[0] = random.uniform(0,4)
+    data[1] = random.uniform(0,4)
     print("Ending thread:", threading.current_thread().name)
 
 if __name__ == "__main__":   
@@ -22,6 +22,7 @@ if __name__ == "__main__":
     data = [0,0,0]
 
     queue.put(data)
+    print(data)
     data_ready.set()
 
     thread.join()
