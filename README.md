@@ -29,4 +29,23 @@ Les 4 premières sections sont représentés par des "message queues", vehicles 
 ---
 Shared resources :
 - 1 listes, une pour chaque route avec les voitures au feu
-- caractéristiques des voitures (créées par normal_traffic_gen et priotiry_traffic_gen) --> source, dest, position, priorité, et sémaphore ? Ou sémaphore par route
+- caractéristiques des voitures (créées par normal_traffic_gen et priotiry_traffic_gen) --> source, dest, position, priorité, mouvement (tout droit, à droite, à gauche) Osef destination du coup ? A gauche doit attendre qu'en face ils soient passés, ou si les deux vont à gauche ça passe ; bloque les autres ? A voir après
+- Etat actuel des feux
+
+---
+Sémaphore :
+Un par route, contient la capacité de passage du nombre de voitures à son feu
+
+---
+Logique de la situation :
+
+Vérification de l'état des feux :
+La voiture check dans la mémoire partagée si le feu de sa route est vert.
+  -> Si le feu est rouge, elle attend (ou ne fait rien jusqu’à ce que le feu soit vert).
+  -> Si le feu est vert, la voiture tente d'acquérir le sémaphore de sa route (semaphore[route].acquire()). (Pour garantir qu'elle est autorisée à avancer dans l'intersection sans entrer en conflit avec d'autres voitures.
+     Une fois qu'elle a traversé l'intersection, elle libère le sémaphore (semaphore[route].release()).
+
+Si véhicule prio :
+Le processus associé envoie un signal au gestionnaire de feux.
+Les feux changent immédiatement pour permettre au véhicule prioritaire de passer.
+Sémaphores des autres routes temporairement bloqués pour empêcher d'autres voitures d'avancer ?
