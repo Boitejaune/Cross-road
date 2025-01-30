@@ -1,20 +1,29 @@
+import time
+import sysv_ipc
 import multiprocessing
 
-def update(proc_id, data):
-    print("starting process:", multiprocessing.current_process().name)
-    if proc_id % 2:
-        data.value += 1
-    else:
-        data.value -= 1
-    print("ending process:", multiprocessing.current_process().name)            
- 
-if __name__ == "__main__":
+
+# Processus de gestion des feux avec alternance simple
+# Gérer les feux de circulation avec alternance toutes les 5 secondes, met à jour les états dans la queue (light_queue
+def lights_process(light_queue):
+    current_ns = "RED"
+    current_we = "GREEN"
+
+    key = 324
     
-    data = multiprocessing.Value('d', 0, lock=False)
- 
-    process = multiprocessing.Process(target=worker, args=(i, data))
- 
-    process.start()
-    process.join()
- 
-    print(f"Value of data needs to be 0, got {data.value}")
+    while True:
+        time.sleep(5)  # Intervalle de 5 secondes pour changer les feux
+        
+        #if sysv_ipc.MessageQueue(key):
+
+        #else:
+            # Alternance des feux
+        if current_ns == "RED":
+            current_ns = "GREEN"
+            current_we = "RED"
+        else:
+            current_ns = "RED"
+            current_we = "GREEN"
+        # Mettre à jour les feux dans la queue
+        light_queue.put(current_ns)
+        light_queue.put(current_we)

@@ -1,7 +1,6 @@
+import multiprocessing
 import tkinter as tk
 import random
-import time
-import multiprocessing
 
 # Dimensions
 WINDOW_SIZE = 500
@@ -97,81 +96,8 @@ class CrossroadSimulation:
         # Mettre à jour la simulation toutes les 100ms
         self.root.after(100, self.update_simulation)
 
-# Génération de trafic normal
-# Générer des voitures à intervalles aléatoires et les ajouter à une queue (car_queue)
-def normal_traffic_gen(car_queue):
-    while True:
-        time.sleep(random.uniform(0.5, 2))  # Génère des voitures à des intervalles aléatoires
-        direction = random.choice(["NS", "WE"])
-        car = {"direction": direction, "priority": False}
-        car_queue.put(car)
-
-# Processus de gestion des feux avec alternance simple
-# Gérer les feux de circulation avec alternance toutes les 5 secondes, met à jour les états dans la queue (light_queue
-def lights_process(light_queue):
-    current_ns = "RED"
-    current_we = "GREEN"
-    
-    while True:
-        time.sleep(5)  # Intervalle de 5 secondes pour changer les feux
-        
-        # Alternance des feux
-        if current_ns == "RED":
-            current_ns = "GREEN"
-            current_we = "RED"
-        else:
-            current_ns = "RED"
-            current_we = "GREEN"
-        
-        # Mettre à jour les feux dans la queue
-        light_queue.put(current_ns)
-        light_queue.put(current_we)
-
-# Processus de coordination des véhicules : Vérifie les feux avant de permettre aux voitures de circuler. Si le feu est vert pour la direction d'une voiture, elle peut avancer.
-def coordinator(car_queue, priority_queue, light_queue):
-    while True:
-        time.sleep(0.1)
-        
-        # Gérer les véhicules en fonction des feux
-        if not car_queue.empty():
-            car_info = car_queue.get()
-            direction = car_info["direction"]
-            # Si le feu est vert pour la direction du véhicule, il peut passer
-            if (direction == "NS" and light_queue.get() == "GREEN") or \
-               (direction == "WE" and light_queue.get() == "GREEN"):
-                # Logique pour faire avancer la voiture (ex. déplacer sur l'écran)
-                pass  # On ajoutera la gestion de l'avancement plus tard
-
 # Lancer l'interface graphique
 def run_gui(priority_queue):
     root = tk.Tk()
     app = CrossroadSimulation(root, priority_queue)
     root.mainloop()
-
-if __name__ == "__main__":
-    # Création des queues pour la communication entre les processus
-    car_queue = multiprocessing.Queue()  # Queue des véhicules normaux
-    priority_queue = multiprocessing.Queue()  # Queue des véhicules prioritaires (désactivé)
-    light_queue = multiprocessing.Queue()  # Queue des feux de circulation
-    
-    light_queue.put("GREEN")  # Initialiser les feux
-    
-    # Démarrer les processus
-    p_lights = multiprocessing.Process(target=lights_process, args=(light_queue,))
-    p_normal_traffic = multiprocessing.Process(target=normal_traffic_gen, args=(car_queue,))
-    # p_priority_traffic = multiprocessing.Process(target=priority_traffic_gen, args=(priority_queue,))  # Désactivé
-    p_coordinator = multiprocessing.Process(target=coordinator, args=(car_queue, priority_queue, light_queue))
-    
-    p_lights.start()
-    p_normal_traffic.start()
-    # p_priority_traffic.start()  # Désactivé
-    p_coordinator.start()
-    
-    # Lancer l'interface graphique
-    run_gui(priority_queue)
-    
-    # Terminer les processus à la fin
-    p_lights.terminate()
-    p_normal_traffic.terminate()
-    # p_priority_traffic.terminate()  # Désactivé
-    p_coordinator.terminate()

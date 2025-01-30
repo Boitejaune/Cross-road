@@ -2,6 +2,10 @@ import tkinter as tk
 import random
 import time
 import multiprocessing
+import sysv_ipc
+import socket
+
+
 
 # Dimensions
 WINDOW_SIZE = 500
