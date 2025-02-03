@@ -19,6 +19,7 @@ if __name__ == "__main__":
     queue_1 = multiprocessing.Queue()
     queue_2 = multiprocessing.Queue()
     queue_3 = multiprocessing.Queue()
+    priority_queue = multiprocessing.Queue()
     
     # def la shared memory array lights
     dico_feu = {0 : "RED",
@@ -28,9 +29,9 @@ if __name__ == "__main__":
     light_array = multiprocessing.Array(dico_feu)
     
     # Démarrer les processus
-    p_lights = multiprocessing.Process(target=lights.lights_process, args=(queue_0, queue_1, queue_2, queue_3, light_array,))
+    p_lights = multiprocessing.Process(target=lights.lights_process, args=(queue_0, queue_1, queue_2, queue_3, light_array,priority_queue))
     p_normal_traffic = multiprocessing.Process(target=normal_traffic.normal_traffic_gen, args=(queue_0, queue_1, queue_2, queue_3))
-    p_priority_traffic = multiprocessing.Process(target=priority_traffic, args=(queue_0, queue_1, queue_2, queue_3, light_array,))
+    p_priority_traffic = multiprocessing.Process(target=priority_traffic.priority_traffic_gen, args=(queue_0, queue_1, queue_2, queue_3,priority_queue))
 
     p_lights.start()
     p_normal_traffic.start()
@@ -38,7 +39,7 @@ if __name__ == "__main__":
     p_priority_traffic.start()
 
 
-    p_coordinator = multiprocessing.Process(target=coordinator.coordinator, args=(queue_0, queue_1, queue_2, queue_3, light_array, PID_FEUX))
+    p_coordinator = multiprocessing.Process(target=coordinator.coordinator, args=(queue_0, queue_1, queue_2, queue_3, priority_queue, light_array, PID_FEUX))
     p_coordinator.start()
     p_coordinator.join()
 
