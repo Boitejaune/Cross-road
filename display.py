@@ -1,3 +1,4 @@
+"""
 import multiprocessing
 import tkinter as tk
 import random
@@ -12,8 +13,8 @@ COLORS = {"RED": "red", "GREEN": "green"}
 
 # Positions des routes
 ROADS = {
-    "NS": [(WINDOW_SIZE//2 - ROAD_WIDTH//2, 0, WINDOW_SIZE//2 + ROAD_WIDTH//2, WINDOW_SIZE)],
-    "WE": [(0, WINDOW_SIZE//2 - ROAD_WIDTH//2, WINDOW_SIZE, WINDOW_SIZE//2 + ROAD_WIDTH//2)]
+    0: [(WINDOW_SIZE//2 - ROAD_WIDTH//2, 0, WINDOW_SIZE//2 + ROAD_WIDTH//2, WINDOW_SIZE)],
+    1: [(0, WINDOW_SIZE//2 - ROAD_WIDTH//2, WINDOW_SIZE, WINDOW_SIZE//2 + ROAD_WIDTH//2)]
 }
 
 class CrossroadSimulation:
@@ -23,18 +24,18 @@ class CrossroadSimulation:
         self.canvas.pack()
         
         # Dessiner les routes
-        for road in ROADS["NS"] + ROADS["WE"]:
+        for road in ROADS[0] + ROADS[1]:
             self.canvas.create_rectangle(road, fill="gray")
         
         # Feux de circulation pour chaque route
         self.lights = {
-            "NS": "RED",  # Feu pour la route Nord-Sud
-            "WE": "GREEN"  # Feu pour la route Ouest-Est
+            0 : "RED",  # Feu pour la route Nord-Sud
+            1 : "GREEN"  # Feu pour la route Ouest-Est
         }
         
         self.light_circles = {
-            "NS": self.canvas.create_oval(220, 10, 280, 50, fill=COLORS[self.lights["NS"]]),
-            "WE": self.canvas.create_oval(10, 220, 50, 280, fill=COLORS[self.lights["WE"]])
+            0: self.canvas.create_oval(220, 10, 280, 50, fill=COLORS[self.lights[0]]),
+            1: self.canvas.create_oval(10, 220, 50, 280, fill=COLORS[self.lights[1]])
         }
         
         self.cars = []  # Liste des voitures normales
@@ -46,13 +47,14 @@ class CrossroadSimulation:
 
     def update_simulation(self):
         # Mettre à jour les feux de circulation
-        self.canvas.itemconfig(self.light_circles["NS"], fill=COLORS[self.lights["NS"]])
-        self.canvas.itemconfig(self.light_circles["WE"], fill=COLORS[self.lights["WE"]])
+        self.canvas.itemconfig(self.light_circles[0], fill=COLORS[self.lights[0]])
+        self.canvas.itemconfig(self.light_circles[1], fill=COLORS[self.lights[1]])
+        
         
         # Ajouter une nouvelle voiture normale
         if random.random() < 0.3:
-            direction = random.choice(["NS", "WE"])
-            if direction == "NS":
+            direction = random.choice([0, 1])
+            if direction == 0:
                 x, y = WINDOW_SIZE//2 - 10, 0
                 dx, dy = 0, 5
             else:
@@ -79,9 +81,9 @@ class CrossroadSimulation:
             dx, dy = car_info["dx"], car_info["dy"]
             
             # Si la direction est rouge, la voiture ne peut pas avancer
-            if direction == "NS" and self.lights["NS"] == "RED":
+            if direction == 0 and self.lights[0] == "RED":
                 continue
-            if direction == "WE" and self.lights["WE"] == "RED":
+            if direction == 1 and self.lights[1] == "RED":
                 continue
                 
             # Déplacer la voiture
@@ -101,3 +103,83 @@ def run_gui(priority_queue):
     root = tk.Tk()
     app = CrossroadSimulation(root, priority_queue)
     root.mainloop()
+
+"""
+import tkinter as tk
+import socket
+import threading
+
+WINDOW_SIZE = 500
+ROAD_WIDTH = 100
+CAR_SIZE = 20
+COLORS = {"RED": "red", "GREEN": "green"}
+
+class CrossroadSimulation:
+    def __init__(self, root):
+        self.root = root
+        self.canvas = tk.Canvas(root, width=WINDOW_SIZE, height=WINDOW_SIZE, bg="white")
+        self.canvas.pack()
+
+        self.lights = {0: "RED", 1: "GREEN"}  # États initiaux
+        self.cars = []
+
+        # Serveurs sockets
+        self.car_server = threading.Thread(target=self.receive_cars)
+        self.car_server.start()
+
+        self.lights_server = threading.Thread(target=self.receive_lights)
+        self.lights_server.start()
+
+        self.update_simulation()
+
+    def receive_cars(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind(("localhost", 5000))
+        sock.listen()
+
+        while True:
+            conn, _ = sock.accept()
+            data = conn.recv(1024).decode().strip()
+            if data:
+                car_info = eval(data)
+                self.add_car(car_info)
+
+    def receive_lights(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind(("localhost", 5001))
+        sock.listen()
+
+        while True:
+            conn, _ = sock.accept()
+            data = conn.recv(1024).decode().strip()
+            if data:
+                ns, we = data.split()
+                self.lights["NS"], self.lights["WE"] = ns, we
+
+    def add_car(self, car_info):
+        direction = car_info["direction"]
+        x, y = (WINDOW_SIZE // 2 - 10, 0) if direction == "NS" else (0, WINDOW_SIZE // 2 - 10)
+        dx, dy = (0, 5) if direction == "NS" else (5, 0)
+        
+        car = self.canvas.create_rectangle(x, y, x + CAR_SIZE, y + CAR_SIZE, fill="blue")
+        self.cars.append({"car": car, "dx": dx, "dy": dy})
+
+    def update_simulation(self):
+        for car_info in self.cars:
+            car = car_info["car"]
+            dx, dy = car_info["dx"], car_info["dy"]
+            self.canvas.move(car, dx, dy)
+
+            # Supprimer les voitures hors écran
+            x1, y1, x2, y2 = self.canvas.coords(car)
+            if x1 > WINDOW_SIZE or y1 > WINDOW_SIZE:
+                self.canvas.delete(car)
+                self.cars.remove(car_info)
+
+        self.root.after(50, self.update_simulation)  # Mise à jour rapide
+
+def run_gui():
+    root = tk.Tk()
+    app = CrossroadSimulation(root)
+    root.mainloop()
+

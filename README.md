@@ -1,4 +1,14 @@
 # Crossroads
+A faire :
+- partie sockets entre display et coordinateur/lights
+- organisation messagequeue pour normal/priority traffic
+- structure de la shared memory entre coordinateur et lights
+- signal entre coordinateur et lights
+- re conceptionner la partie display pour qu'elle génère pas d'elle-même les voitures
+- plusieurs queues, une par route
+
+
+
 
 ---
 

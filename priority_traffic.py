@@ -6,6 +6,6 @@ import time
 def normal_traffic_gen(car_queue):
     while True:
         time.sleep(random.uniform(0.5, 2))  # Génère des voitures à des intervalles aléatoires
-        direction = random.choice(["NS", "WE"])
+        direction = random.choice([0, 1])
         car = {"direction": direction, "priority": True}
         car_queue.put(car)

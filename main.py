@@ -10,6 +10,9 @@ import multiprocessing
 if __name__ == "__main__":
     # Création des queues pour la communication entre les processus
     car_queue = multiprocessing.Queue()  # Queue des véhicules normaux
+    NS_queue = multiprocessing.Queue()
+    WE_queue = multiprocessing.Queue()
+    
     priority_queue = multiprocessing.Queue()  # Queue des véhicules prioritaires (désactivé)
     light_queue = multiprocessing.Queue()  # Queue des feux de circulation
     
