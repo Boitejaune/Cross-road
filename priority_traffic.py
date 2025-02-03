@@ -4,12 +4,13 @@ import multiprocessing
 
 # Génération de trafic prioritaire
 # Générer des voitures à intervalles aléatoires et les ajouter à une queue (car_queue)
-def priority_traffic_gen(queue_0, queue_1, queue_2, queue_3):
+def priority_traffic_gen(queue_0, queue_1, queue_2, queue_3,priority_queue):
 
     dico_queues = {0 : queue_0,
                    1 : queue_1,
                    2 : queue_2,
                    3 : queue_3}
+    priority_queue = []
     
     while True:
         # Génère des voitures à des intervalles aléatoires
@@ -17,6 +18,7 @@ def priority_traffic_gen(queue_0, queue_1, queue_2, queue_3):
 
         # Choix source 
         source = random.choice([0, 1, 2, 3])
+        priority_queue.append(source)
 
         # Création des caractéristiques direction, priorité des voitures 
         possible_directions = [d for d in [0, 1, 2, 3] if d != source]
@@ -31,8 +33,9 @@ def priority_traffic_gen(queue_0, queue_1, queue_2, queue_3):
         print(dico_queues)
         for i in range(len(dico_queues)):
             print(f"Queue {i} size: {dico_queues[i].qsize()}")
+        print(dico_queues, priority_queue)
 
-"""
+
 # Pour tester :
 if __name__ == "__main__":
     # Création des queues
@@ -40,7 +43,6 @@ if __name__ == "__main__":
     queue_1 = multiprocessing.Queue()
     queue_2 = multiprocessing.Queue()
     queue_3 = multiprocessing.Queue()
-
+    priority_queue = multiprocessing.Queue()
     # Lancer la génération de trafic
-    normal_traffic_gen(queue_0, queue_1, queue_2, queue_3)
-"""
+    priority_traffic_gen(queue_0, queue_1, queue_2, queue_3,priority_queue)

@@ -33,7 +33,7 @@ def normal_traffic_gen(queue_0, queue_1, queue_2, queue_3):
         for i in range(len(dico_queues)):
             print(f"Queue {i} size: {dico_queues[i].qsize()}")
 
-
+"""
 # Pour tester :
 if __name__ == "__main__":
     # Création des queues
@@ -56,3 +56,4 @@ if __name__ == "__main__":
     # Attendre que les processus terminent (normalement, ils tournent en boucle infinie)
     normal_process.join()
     priority_process.join()
+"""

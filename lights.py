@@ -61,7 +61,7 @@ def lights_process(queue_0, queue_1, queue_2, queue_3,light):
         print(light)
 
 
-
+"""
 if __name__ == "__main__":
     # Création des queues pour la communication entre les processus
     queue_0 = multiprocessing.Queue()
@@ -75,3 +75,4 @@ if __name__ == "__main__":
                 2 : "RED",
                 3 : "GREEN"}    
     lights_process(queue_0, queue_1, queue_2, queue_3,dico_feu)
+"""
