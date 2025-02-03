@@ -2,6 +2,7 @@ import tkinter as tk
 import threading
 import time
 import random
+import socket
 
 WINDOW_SIZE = 500
 ROAD_WIDTH = 100
@@ -31,7 +32,7 @@ START_POSITIONS = {
 }
 
 class CrossroadSimulation:
-    def __init__(self, root, queue_0, queue_1, queue_2, queue_3):
+    def __init__(self, root):#, queue_0, queue_1, queue_2, queue_3):
         self.root = root
         self.canvas = tk.Canvas(root, width=WINDOW_SIZE, height=WINDOW_SIZE, bg="white")
         self.canvas.pack()
@@ -51,21 +52,75 @@ class CrossroadSimulation:
         self.voitures = {}
 
         # Queues des voitures
-        self.queues = {0: queue_0, 1: queue_1, 2: queue_2, 3: queue_3}
+        #self.queues = {0: queue_0, 1: queue_1, 2: queue_2, 3: queue_3}
 
-        # Démarrer le thread d'écoute des données
+        # Démarrer le serveur socket pour écouter Coordinator
         self.running = True
-        self.update_thread = threading.Thread(target=self.listen_for_updates)
-        self.update_thread.start()
+        self.server_thread = threading.Thread(target=self.start_socket_server)
+        self.server_thread.start()
 
+    def start_socket_server(self):
+        """Démarre un serveur socket pour recevoir les données de Coordinator."""
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.bind(("localhost", 12345))  # Écoute sur le port 12345
+        server.listen(5)
+        print("[INFO] Serveur Display en écoute...")
+
+        while self.running:
+            client, addr = server.accept()
+            print(f"[INFO] Connexion reçue de {addr}")
+            client_thread = threading.Thread(target=self.handle_client, args=(client,))
+            client_thread.start()
+
+    def handle_client(self, client):
+        """Gère la connexion socket avec Coordinator et traite les messages."""
+        while self.running:
+            try:
+                data = client.recv(1024).decode()
+                if not data:
+                    break
+                
+                message = data.split(",")  # Ex : "0,1,False"
+                header = int(message[0])
+
+                if header in [0, 1, 2, 3]:  # Ajout d'une voiture
+                    origin = header
+                    destination = int(message[1])
+                    is_priority = message[2] == "True"
+                    self.root.after(0, self.add_voiture, origin, destination, is_priority)
+
+                elif header == 4:  # Mise à jour des feux
+                    feu_nord = "GREEN" if message[1] == "1" else "RED"
+                    feu_est = "GREEN" if message[2] == "1" else "RED"
+                    feu_sud = "GREEN" if message[3] == "1" else "RED"
+                    feu_ouest = "GREEN" if message[4] == "1" else "RED"
+
+                    self.root.after(0, self.update_lights, feu_nord, feu_est, feu_sud, feu_ouest)
+
+            except Exception as e:
+                print(f"[ERREUR] Problème avec le client socket : {e}")
+                break
+
+        client.close()
+
+    def update_lights(self, nord, est, sud, ouest):
+        """Met à jour les feux de circulation sur le canevas."""
+        self.canvas.itemconfig(self.lights["Nord"], fill=COLORS[nord])
+        self.canvas.itemconfig(self.lights["Est"], fill=COLORS[est])
+        self.canvas.itemconfig(self.lights["Sud"], fill=COLORS[sud])
+        self.canvas.itemconfig(self.lights["Ouest"], fill=COLORS[ouest])
+
+
+    """
     def listen_for_updates(self):
-        """Simule la réception des données des sockets et met à jour les voitures."""
+        #Simule la réception des données des sockets et met à jour les voitures.
         while self.running:
             for route, queue in self.queues.items():
                 if not queue.empty():
                     data = queue.get()  # Récupérer les infos sous forme (destination, priorité)
                     self.add_voiture(route, data[0], data[1])
             time.sleep(0.5)  # Met à jour toutes les 500ms
+    """
 
     def add_voiture(self, origin, destination, is_priority):
         """Ajoute une voiture sur l'écran avec la couleur correspondante."""
@@ -80,12 +135,20 @@ class CrossroadSimulation:
         self.running = False
         self.update_thread.join()
 
+def run_gui():
+    root = tk.Tk()
+    app = CrossroadSimulation(root)
+    root.protocol("WM_DELETE_WINDOW", app.stop)
+    root.mainloop()
 
+
+"""
 def run_gui(queue_0, queue_1, queue_2, queue_3):
     root = tk.Tk()
     app = CrossroadSimulation(root, queue_0, queue_1, queue_2, queue_3)
     root.protocol("WM_DELETE_WINDOW", app.stop)  # Assurer la fermeture propre
     root.mainloop()
+
 
 
 if __name__ == "__main__":
@@ -112,7 +175,11 @@ if __name__ == "__main__":
     queue_3.put((0, True))   # Une voiture prioritaire venant de l'Ouest vers le Nord
 
     # Laisser tourner quelques secondes pour voir l'affichage
-    time.sleep(10)
+    time.sleep(100)
 
     # Fermer proprement
     p_display.terminate()
+"""
+
+if __name__ == "__main__":
+    run_gui()
