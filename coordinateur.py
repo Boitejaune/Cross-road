@@ -1,10 +1,16 @@
 import time
+<<<<<<< HEAD
 import multiprocessing
 import socket
+=======
+import os
+import signal
+>>>>>>> 8336a699d65685c4249c005e296f42a735862e9c
 
 """
 # Processus de coordination des véhicules : Vérifie les feux avant de permettre aux voitures de circuler. Si le feu est vert pour la direction d'une voiture, elle peut avancer.
-def coordinator(car_queue, priority_queue, light_queue):
+def coordinator(car_queue, priority_queue, light_queue,PID_FEUX):
+    print(PID_FEUX)
     while True:
         time.sleep(0.1)
         
@@ -13,8 +19,22 @@ def coordinator(car_queue, priority_queue, light_queue):
             car_info = car_queue.get()
             direction = car_info["direction"]
             # Si le feu est vert pour la direction du véhicule, il peut passer
+<<<<<<< HEAD
             if (direction == 0 and light_queue.get() == "GREEN") or \
                (direction == 1 and light_queue.get() == "GREEN"):
+=======
+            if car_info["priority"] == True:
+                if car_info["Direction"] == 0:
+                    os.kill(PID_FEUX,signal.SIGUSR1)
+                if car_info["Direction"] == 0:
+                    os.kill(PID_FEUX,signal.SIGUSR2)
+                if car_info["Direction"] == 0:
+                    os.kill(PID_FEUX,signal.SIGUSRTERM)
+                else:
+                    os.kill(PID_FEUX,signal.SIGUSRINT)
+            if (direction == "NS" and light_queue.get() == "GREEN") or \
+               (direction == "WE" and light_queue.get() == "GREEN"):
+>>>>>>> 8336a699d65685c4249c005e296f42a735862e9c
                 # Logique pour faire avancer la voiture (ex. déplacer sur l'écran)
                 pass  # On ajoutera la gestion de l'avancement plus tard
 """
