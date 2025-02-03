@@ -28,10 +28,6 @@ def handler_sigint(signum, frame):
 def lights_process(light_queue):
     current_ns = "RED"
     current_we = "GREEN"
-    dico_feu = {0 : "RED",
-                1 : "GREEN",
-                2 : "RED",
-                3 : "GREEN"}
 
     while True:
         time.sleep(5)  # Intervalle de 5 secondes pour changer les feux
