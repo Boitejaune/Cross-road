@@ -9,29 +9,23 @@ import normal_traffic
 import display
 import priority_traffic
 import multiprocessing
-
-
-
+import sysv_ipc
 
 if __name__ == "__main__":
     # Création des queues pour la communication entre les processus
-    queue_0 = multiprocessing.Queue()
-    queue_1 = multiprocessing.Queue()
-    queue_2 = multiprocessing.Queue()
-    queue_3 = multiprocessing.Queue()
-    priority_queue = multiprocessing.Queue()
+    priority_queue = multiprocessing.Array()
     
     # def la shared memory array lights
     dico_feu = {0 : "RED",
                 1 : "GREEN",
                 2 : "RED",
                 3 : "GREEN"}
-    light_array = multiprocessing.Array(dico_feu)
+    light_dict = multiprocessing.Manager().dict(dico_feu)
     
     # Démarrer les processus
-    p_lights = multiprocessing.Process(target=lights.lights_process, args=(queue_0, queue_1, queue_2, queue_3, light_array,priority_queue))
-    p_normal_traffic = multiprocessing.Process(target=normal_traffic.normal_traffic_gen, args=(queue_0, queue_1, queue_2, queue_3))
-    p_priority_traffic = multiprocessing.Process(target=priority_traffic.priority_traffic_gen, args=(queue_0, queue_1, queue_2, queue_3,priority_queue))
+    p_lights = multiprocessing.Process(target=lights.lights_process, args=(light_dict,priority_queue))
+    p_normal_traffic = multiprocessing.Process(target=normal_traffic.normal_traffic_gen, args=())
+    p_priority_traffic = multiprocessing.Process(target=priority_traffic.priority_traffic_gen, args=(priority_queue))
 
     p_lights.start()
     p_normal_traffic.start()
@@ -39,7 +33,7 @@ if __name__ == "__main__":
     p_priority_traffic.start()
 
 
-    p_coordinator = multiprocessing.Process(target=coordinator.coordinator, args=(queue_0, queue_1, queue_2, queue_3, priority_queue, light_array, PID_FEUX))
+    p_coordinator = multiprocessing.Process(target=coordinator.coordinator, args=(priority_queue, light_dict, PID_FEUX))
     p_coordinator.start()
     p_coordinator.join()
 
