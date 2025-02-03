@@ -2,6 +2,12 @@ import time
 import os
 import signal
 
+
+# Créer les signaux, un pour chaque route
+# toutes les 5 secondes, le main màj les feux. Si signal du prioritaire, tant que le véhicule pas passé, laisse vert à la source du véhicule
+# un dico pour état actuel des feux transmis à coordinateur via shared memory, puis lui à display via sockets
+# pour véhicule prio : FIFO de la queue, on attend le prochain véhicule pour dire qu'il est parti
+
 # Définition des différents handlers pour chaque signal
 def handler_sigusr1(signum, frame):
     print("Signal SIGUSR1 reçu")
