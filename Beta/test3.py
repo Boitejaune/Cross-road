@@ -179,3 +179,77 @@ if __name__ == "__main__":
     p_normal_traffic.terminate()
     # p_priority_traffic.terminate()  # Désactivé
     p_coordinator.terminate()
+
+
+"""import tkinter as tk
+
+
+WINDOW_SIZE = 500
+ROAD_WIDTH = 100
+CAR_SIZE = 20
+COLORS = {"RED": "red", "GREEN": "green"}
+
+# routes - msg queues et feuxù
+
+class CrossroadSimulation:
+    def __init__(self, root, queue0, queue1, queue2, queue3):
+        self.root = root
+        self.canvas = tk.Canvas(root, width=WINDOW_SIZE, height=WINDOW_SIZE, bg="white")
+        self.canvas.pack()
+
+        self.lights = {0: "RED", 1: "GREEN", 2: "RED", 3:"GREEN"}  # États initiaux
+        self.cars = []
+
+        self.lights_dessin_cercles = {
+            0: self.canvas.create_oval(220, 10, 280, 50, fill=COLORS[self.lights["NS"]]),
+            1: self.canvas.create_oval(220, 10, 280, 50, fill=COLORS[self.lights["NS"]]),
+            2: self.canvas.create_oval(220, 10, 280, 50, fill=COLORS[self.lights["NS"]]),
+            3: self.canvas.create_oval(220, 10, 280, 50, fill=COLORS[self.lights["NS"]])
+        }
+
+    
+        # Serveurs sockets
+        self.car_server = threading.Thread(target=self.receive_cars)
+        self.car_server.start()
+
+        self.lights_server = threading.Thread(target=self.receive_lights)
+        self.lights_server.start()
+        
+        
+        self.update_simulation()
+
+    def reception_voitures(self):
+
+
+
+    def update_simulation(self):
+        # Mettre à jour les feux de circulation
+        self.canvas.itemconfig(self.light_circles["N"], fill=COLORS[self.lights["NS"]])
+        self.canvas.itemconfig(self.light_circles["W"], fill=COLORS[self.lights["WE"]])
+        
+            
+        # Déplacer les voitures
+        for car_info in self.cars:
+            car = car_info["car"]
+            direction = car_info["direction"]
+            dx, dy = car_info["dx"], car_info["dy"]
+            
+            # Si la direction est rouge, la voiture ne peut pas avancer
+            if direction == "NS" and self.lights["NS"] == "RED":
+                continue
+            if direction == "WE" and self.lights["WE"] == "RED":
+                continue
+                
+            # Déplacer la voiture
+            self.canvas.move(car, dx, dy)
+            
+            # Supprimer les voitures qui sortent de l'écran
+            x1, y1, x2, y2 = self.canvas.coords(car)
+            if x1 > WINDOW_SIZE or y1 > WINDOW_SIZE:
+                self.canvas.delete(car)
+                self.cars = [c for c in self.cars if c["car"] != car]  # Nettoyer la liste
+        
+        # Mettre à jour la simulation toutes les 100ms
+        self.root.after(100, self.update_simulation)
+
+        """
