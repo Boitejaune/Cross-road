@@ -26,7 +26,7 @@ def normal_traffic_gen():
         direction = random.choice(possible_directions)  # Avec direction != source
 
         car = {"direction": direction, "priority": False}
-        print(f"🚗 Nouvelle voiture : {car} (de {source})")
+        print(f"Nouvelle voiture : {car} (de {source})")
 
         # Convertir en JSON et envoyer dans la file de messages
         car_bytes = json.dumps(car).encode('utf-8')  # Convertir en bytes
@@ -34,4 +34,4 @@ def normal_traffic_gen():
 
         # Afficher la taille des queues
         for i in range(len(dico_queues)):
-            print(f"📥 Queue {i} size: {dico_queues[i].current_messages}")
+            print(f"Queue {i} size: {dico_queues[i].current_messages}")

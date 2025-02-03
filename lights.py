@@ -39,7 +39,7 @@ def handler_sigint(signum, frame, light,queue_3,priority_queue):
 
 # Processus de gestion des feux avec alternance simple
 # Gérer les feux de circulation avec alternance toutes les 5 secondes, met à jour les états dans la queue (light_queue
-def lights_process(queue_0, queue_1, queue_2, queue_3,light):
+def lights_process(queue_0, queue_1, queue_2, queue_3,light,priority_queue):
     while True:
 
         # Enregistrement des handlers pour différents signaux
@@ -63,20 +63,3 @@ def lights_process(queue_0, queue_1, queue_2, queue_3,light):
             light[3] = "GREEN"
         # Mettre à jour les feux dans la queue
         print(light)
-
-
-
-if __name__ == "__main__":
-    # Création des queues pour la communication entre les processus
-    queue_0 = multiprocessing.Queue()
-    queue_1 = multiprocessing.Queue()
-    queue_2 = multiprocessing.Queue()
-    queue_3 = multiprocessing.Queue()
-    priority_queue = multiprocessing.Queue()
-    
-    # def la shared memory array lights
-    dico_feu = {0 : "RED",
-                1 : "GREEN",
-                2 : "RED",
-                3 : "GREEN"}    
-    lights_process(queue_0, queue_1, queue_2, queue_3,dico_feu)
