@@ -39,14 +39,14 @@ def handler_sigint(signum, frame, light,queue_3,priority_queue):
 
 # Processus de gestion des feux avec alternance simple
 # Gérer les feux de circulation avec alternance toutes les 5 secondes, met à jour les états dans la queue (light_queue
-def lights_process(queue_0, queue_1, queue_2, queue_3,light,priority_queue):
+def lights_process(light,priority_queue):
     while True:
 
         # Enregistrement des handlers pour différents signaux
-        signal.signal(signal.SIGUSR1, functools.partial(handler_sigusr1, light,queue_0))
-        signal.signal(signal.SIGUSR2, functools.partial(handler_sigusr2, light,queue_1))
-        signal.signal(signal.SIGTERM, functools.partial(handler_sigterm, light,queue_2))
-        signal.signal(signal.SIGINT, handler_sigint, light,queue_3)
+        signal.signal(signal.SIGUSR1, functools.partial(handler_sigusr1, light, priority_queue))
+        signal.signal(signal.SIGUSR2, functools.partial(handler_sigusr2, light, priority_queue))
+        signal.signal(signal.SIGTERM, functools.partial(handler_sigterm, light, priority_queue))
+        signal.signal(signal.SIGINT, functools.partial(handler_sigint, light, priority_queue))
 
         time.sleep(5)  # Intervalle de 5 secondes pour changer les feux
             # Alternance des feux

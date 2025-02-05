@@ -11,8 +11,9 @@ import socket
 import os
 import signal
 import json
+import sys
 
-
+"""
 # Processus de coordination des véhicules : Vérifie les feux avant de permettre aux voitures de circuler. Si le feu est vert pour la direction d'une voiture, elle peut avancer.
 def coordinator(priority_queue, light_array, PID_FEUX):
     print(f"PID : {PID_FEUX}")
@@ -57,3 +58,89 @@ def coordinator(priority_queue, light_array, PID_FEUX):
         
         time.sleep(0.1)  # Petit délai pour éviter la surcharge CPU
         print(f"Voitures après feux : {queues}")
+"""
+
+def signal_handler(sig, frame):
+    cleanup_queues()
+
+def cleanup_queues():
+    for i in range(4):
+        try:
+            queue = sysv_ipc.MessageQueue(128 + i)
+            while queue.current_messages > 0:
+                queue.receive()
+            queue.remove()
+        except:
+            pass
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+"""
+def coordinator(priority_queue, light_array, PID_FEUX):
+   key = 128
+   mqueues = [sysv_ipc.MessageQueue(key + i, sysv_ipc.IPC_CREX) for i in range(4)]
+
+   try:
+       while True:
+           # Reste du code inchangé...
+           queues = []
+           for mq in mqueues:
+               try:
+                   msg, _ = mq.receive(block=False) 
+                   queues.append(json.loads(msg.decode('utf-8')))
+               except sysv_ipc.BusyError:
+                   queues.append(None)
+                   
+           for queue_index, queue_data in enumerate(queues):
+               if queue_data:
+                   if queue_index in priority_queue.get():
+                       signal_map = {0: signal.SIGUSR1, 1: signal.SIGUSR2,
+                                   2: signal.SIGTERM, 3: signal.SIGINT}
+                       os.kill(PID_FEUX, signal_map.get(queue_index, signal.SIGINT))
+                       while mqueues[queue_index].current_messages > 0:
+                           mqueues[queue_index].receive()
+                   elif light_array[queue_index] == 1:
+                       while mqueues[queue_index].current_messages > 0:
+                           mqueues[queue_index].receive()
+                           
+           time.sleep(0.1)
+
+   except sysv_ipc.Error as e:
+       print(f"Erreur IPC: {e}")
+"""
+def coordinator(priority_queue, light_array, PID_FEUX):
+    key = 128
+    mqueues = [sysv_ipc.MessageQueue(key + i, sysv_ipc.IPC_CREX) for i in range(4)]
+
+    try:
+        while True:
+            try:
+                queues = []
+                for mq in mqueues:
+                    try:
+                        msg, _ = mq.receive(block=False) 
+                        queues.append(json.loads(msg.decode('utf-8')))
+                    except sysv_ipc.BusyError:
+                        queues.append(None)
+                        
+                for queue_index, queue_data in enumerate(queues):
+                    if queue_data:
+                        if queue_index in priority_queue.get():
+                            signal_map = {0: signal.SIGUSR1, 1: signal.SIGUSR2,
+                                   2: signal.SIGTERM, 3: signal.SIGINT}
+                            os.kill(PID_FEUX, signal_map.get(queue_index, signal.SIGINT))
+                            while mqueues[queue_index].current_messages > 0:
+                                mqueues[queue_index].receive()
+                        elif light_array[queue_index] == 1:
+                            while mqueues[queue_index].current_messages > 0:
+                                mqueues[queue_index].receive()
+                                
+                time.sleep(0.1)
+
+            except (KeyboardInterrupt, SystemExit):
+                cleanup_queues()
+                break
+
+    except sysv_ipc.Error as e:
+        print(f"Erreur IPC: {e}")
+        cleanup_queues()
