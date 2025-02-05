@@ -59,6 +59,9 @@ class CrossroadSimulation:
         self.server_thread = threading.Thread(target=self.start_socket_server)
         self.server_thread.start()
 
+        self.root.after(100, self.move_voitures)
+
+
     def start_socket_server(self):
         """Démarre un serveur socket pour recevoir les données de Coordinator."""
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -109,6 +112,88 @@ class CrossroadSimulation:
         self.canvas.itemconfig(self.lights["Est"], fill=COLORS[est])
         self.canvas.itemconfig(self.lights["Sud"], fill=COLORS[sud])
         self.canvas.itemconfig(self.lights["Ouest"], fill=COLORS[ouest])
+
+    def move_voitures(self):
+        """Déplace les voitures et gère les virages correctement."""
+        voitures_a_supprimer = []
+
+        for car, (origin, destination) in list(self.voitures.items()):
+            x1, y1, x2, y2 = self.canvas.coords(car)
+
+            # Feux et positions de l'intersection
+            feu_position = {0: 180, 1: 305, 2: 320, 3: 200}
+            intersection_x, intersection_y = WINDOW_SIZE//2, WINDOW_SIZE//2
+
+            # Vérifier la couleur du feu
+            feu_ok = (
+                (origin == 0 and self.canvas.itemcget(self.lights["Nord"], "fill") == COLORS["GREEN"]) or
+                (origin == 1 and self.canvas.itemcget(self.lights["Est"], "fill") == COLORS["GREEN"]) or
+                (origin == 2 and self.canvas.itemcget(self.lights["Sud"], "fill") == COLORS["GREEN"]) or
+                (origin == 3 and self.canvas.itemcget(self.lights["Ouest"], "fill") == COLORS["GREEN"])
+            )
+
+            # Vérifier si la voiture a dépassé son feu (elle continue après l'intersection)
+            passed_light = (
+                (origin == 0 and y1 > feu_position[0]) or  # Nord → Sud
+                (origin == 1 and x1 < feu_position[1]) or  # Est → Ouest
+                (origin == 2 and y2 < feu_position[2]) or  # Sud → Nord
+                (origin == 3 and x2 > feu_position[3])     # Ouest → Est
+            )
+
+            # Debugging
+            print(f"Voiture {car} de {origin} vers {destination} | Feu OK: {feu_ok} | Dépassé: {passed_light}")
+
+            # Si la voiture peut avancer
+            if feu_ok or passed_light:
+                dx, dy = 0, 0
+
+                # Si la voiture n'est pas encore au centre, elle avance droit
+                if (
+                    (origin == 0 and y1 < intersection_y) or
+                    (origin == 1 and x1 > intersection_x) or
+                    (origin == 2 and y2 > intersection_y) or
+                    (origin == 3 and x2 < intersection_x)
+                ):
+                    dx, dy = {0: (0, 5), 1: (-5, 0), 2: (0, -5), 3: (5, 0)}[origin]
+
+                else:  # Elle est au centre et peut tourner si nécessaire
+                    if (origin == 0 and destination == 1):  # Nord → Est (droite)
+                        dx, dy = (5, 0)
+                    elif (origin == 0 and destination == 3):  # Nord → Ouest (gauche)
+                        dx, dy = (-5, 0)
+                    elif (origin == 1 and destination == 2):  # Est → Sud (droite)
+                        dx, dy = (0, 5)
+                    elif (origin == 1 and destination == 0):  # Est → Nord (gauche)
+                        dx, dy = (0, -5)
+                    elif (origin == 2 and destination == 3):  # Sud → Ouest (droite)
+                        dx, dy = (-5, 0)
+                    elif (origin == 2 and destination == 1):  # Sud → Est (gauche)
+                        dx, dy = (5, 0)
+                    elif (origin == 3 and destination == 0):  # Ouest → Nord (droite)
+                        dx, dy = (0, -5)
+                    elif (origin == 3 and destination == 2):  # Ouest → Sud (gauche)
+                        dx, dy = (0, 5)
+                    else:  # Si elle va tout droit
+                        dx, dy = {0: (0, 5), 1: (-5, 0), 2: (0, -5), 3: (5, 0)}[origin]
+
+                # Déplacer la voiture
+                self.canvas.move(car, dx, dy)
+
+                # Supprimer la voiture si elle sort de l'écran
+                if x1 < 0 or x2 > WINDOW_SIZE or y1 < 0 or y2 > WINDOW_SIZE:
+                    voitures_a_supprimer.append(car)
+
+        # Supprimer les voitures qui quittent l'écran
+        for car in voitures_a_supprimer:
+            self.canvas.delete(car)
+            del self.voitures[car]
+
+        # Planifier le prochain déplacement
+        self.root.after(100, self.move_voitures)
+
+
+
+
 
 
     """
