@@ -3,6 +3,7 @@
 ## **But du projet**
 
 Ce projet en langage python a pour but de simuler la traffique routier sur un carrefour à 4 axes avec de feux bicolores avec des véhicules prioritaires ou non apparaissant de manière aléatoire.
+
 ---
 ## **Comment lancer la simulation ?**
 
