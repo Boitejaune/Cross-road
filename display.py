@@ -4,6 +4,8 @@ import time
 import random
 import socket
 from tkinter import PhotoImage
+import signal
+import sys
 
 WINDOW_SIZE = 500
 ROAD_WIDTH = 100
@@ -68,7 +70,8 @@ class CrossroadSimulation:
         self.running = True
         self.server_thread = threading.Thread(target=self.start_socket_server)
         self.server_thread.start()
-
+        # Configurer le gestionnaire de signal pour Ctrl+C
+        signal.signal(signal.SIGINT, self.handle_signal)
         self.root.after(100, self.move_voitures)
 
 
@@ -84,6 +87,12 @@ class CrossroadSimulation:
             print(f"[INFO] Connexion reçue de {addr}")
             client_thread = threading.Thread(target=self.handle_client, args=(client,))
             client_thread.start()
+
+    def handle_signal(self, signal, frame):
+        """Gestionnaire de signal pour Ctrl+C."""
+        print("\n[INFO] Arrêt du programme...")
+        self.stop()
+        sys.exit(0)
 
     def handle_client(self, client):
         """Gère la connexion socket avec Coordinator et traite les messages."""
@@ -230,7 +239,9 @@ class CrossroadSimulation:
     def stop(self):
         """Arrête le thread proprement."""
         self.running = False
-        self.update_thread.join()
+        if self.server_thread.is_alive():
+            self.server_thread.join()  # Attendre que le serveur se termine correctement
+        self.root.quit()  # Quitter la boucle principale tkinter
 
 def run_gui():
     root = tk.Tk()

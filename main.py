@@ -57,12 +57,9 @@ if __name__ == "__main__":
 
 
     p_coordinator = multiprocessing.Process(target=coordinator.coordinator, args=(priority_queue, light_dict, mqueues, PID_FEUX, locks))
+    
     p_coordinator.start()
     p_coordinator.join()
-
-    # Lancer l'interface graphique
-    #display.run_gui()
-    
     # Terminer les processus à la fin
     p_lights.terminate()
     p_normal_traffic.terminate()
