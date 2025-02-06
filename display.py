@@ -3,6 +3,7 @@ import threading
 import time
 import random
 import socket
+from tkinter import PhotoImage
 
 WINDOW_SIZE = 500
 ROAD_WIDTH = 100
@@ -34,9 +35,18 @@ START_POSITIONS = {
 class CrossroadSimulation:
     def __init__(self, root):#, queue_0, queue_1, queue_2, queue_3):
         self.root = root
+
+        
+
         self.canvas = tk.Canvas(root, width=WINDOW_SIZE, height=WINDOW_SIZE, bg="white")
         self.canvas.pack()
 
+        """
+        # Charger arrière-plan
+        image = PhotoImage(file='fond.png', master=root)
+        self.canvas.create_image(0, 0, image=image, anchor="nw")
+        """
+        
         # Dessiner les routes
         for road in ROUTES.values():
             for coords in road:
