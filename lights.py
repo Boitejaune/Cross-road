@@ -36,7 +36,7 @@ def handler_sigusr1(signum, frame, light, queue_0, priority_queue, lock):
             if vehicle_data.get("priority"):
                 print("Véhicule prioritaire détecté !")
                 # Si véhicule prioritaire, traiter et enlever de la file d'attente
-                priority_queue.receive()
+                priority_queue.get()
             else:
                 print(f"Véhicule non prioritaire détecté : {vehicle_data}")
             break
@@ -62,7 +62,7 @@ def handler_sigusr2(signum, frame, light, queue_1, priority_queue, lock):
             if vehicle_data.get("priority"):
                 print("Véhicule prioritaire détecté !")
                 # Si véhicule prioritaire, traiter et enlever de la file d'attente
-                priority_queue.receive()
+                priority_queue.get()
             else:
                 print(f"Véhicule non prioritaire détecté : {vehicle_data}")
             break
@@ -88,7 +88,7 @@ def handler_sigterm(signum, frame, light, queue_2, priority_queue, lock):
             if vehicle_data.get("priority"):
                 print("Véhicule prioritaire détecté !")
                 # Si véhicule prioritaire, traiter et enlever de la file d'attente
-                priority_queue.receive()
+                priority_queue.get()
             else:
                 print(f"Véhicule non prioritaire détecté : {vehicle_data}")
             break
@@ -114,7 +114,7 @@ def handler_sigint(signum, frame, light, queue_3, priority_queue, lock):
             if vehicle_data.get("priority"):
                 print("Véhicule prioritaire détecté !")
                 # Si véhicule prioritaire, traiter et enlever de la file d'attente
-                priority_queue.receive()
+                priority_queue.get()
             else:
                 print(f"Véhicule non prioritaire détecté : {vehicle_data}")
             break

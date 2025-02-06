@@ -7,7 +7,7 @@ import socket
 WINDOW_SIZE = 500
 ROAD_WIDTH = 100
 CAR_SIZE = 20
-COLORS = {"RED": "red", "GREEN": "green", "NORMAL": "blue"}
+COLORS = {"RED": "red", "GREEN" : "green", "NORMAL": "blue"}
 
 # Positions des routes
 ROUTES = {
@@ -65,7 +65,7 @@ class CrossroadSimulation:
     def start_socket_server(self):
         """Démarre un serveur socket pour recevoir les données de Coordinator."""
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.bind(("localhost", 12345))  # Écoute sur le port 12345
+        server.bind(("localhost", 12346))  # Écoute sur le port 12345
         server.listen(5)
         print("[INFO] Serveur Display en écoute...")
 
@@ -91,12 +91,14 @@ class CrossroadSimulation:
                     destination = int(message[1])
                     is_priority = message[2] == "True"
                     self.root.after(0, self.add_voiture, origin, destination, is_priority)
+                    print(f"[DEBUG] Ajout voiture : Origine={origin}, Destination={destination}, Prioritaire={is_priority}")
+
 
                 elif header == 4:  # Mise à jour des feux
-                    feu_nord = "GREEN" if message[1] == "1" else "RED"
-                    feu_est = "GREEN" if message[2] == "1" else "RED"
-                    feu_sud = "GREEN" if message[3] == "1" else "RED"
-                    feu_ouest = "GREEN" if message[4] == "1" else "RED"
+                    feu_nord = "GREEN" if message[1] == "GREEN" else "RED"
+                    feu_est = "GREEN" if message[2] == "GREEN" else "RED"
+                    feu_sud = "GREEN" if message[3] == "GREEN" else "RED"
+                    feu_ouest = "GREEN" if message[4] == "GREEN" else "RED"
 
                     self.root.after(0, self.update_lights, feu_nord, feu_est, feu_sud, feu_ouest)
 

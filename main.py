@@ -46,7 +46,7 @@ if __name__ == "__main__":
     mqueues = [sysv_ipc.MessageQueue(key + i, sysv_ipc.IPC_CREX) for i in range(4)]
     
     # Démarrer les processus
-    p_lights = multiprocessing.Process(target=lights.lights_process, args=(light_dict,priority_queue, mqueues, light_lock))
+    p_lights = multiprocessing.Process(target=lights.lights_process, args=(light_dict, priority_queue, mqueues, light_lock))
     p_normal_traffic = multiprocessing.Process(target=normal_traffic.normal_traffic_gen, args=())
     p_priority_traffic = multiprocessing.Process(target=priority_traffic.priority_traffic_gen, args=(priority_queue,))
 
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     p_coordinator.join()
 
     # Lancer l'interface graphique
-    display.run_gui()
+    #display.run_gui()
     
     # Terminer les processus à la fin
     p_lights.terminate()

@@ -16,7 +16,7 @@ def normal_traffic_gen():
     
     while True:
         # Génère des voitures à des intervalles aléatoires
-        time.sleep(1)
+        time.sleep(2)
         #time.sleep(random.uniform(1, 5))  
 
         # Choix source 
