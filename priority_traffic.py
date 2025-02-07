@@ -16,7 +16,7 @@ def priority_traffic_gen(priority_queue):
     
     while True:
         # Génère des voitures à des intervalles aléatoires
-        time.sleep(random.uniform(5, 10))  
+        time.sleep(random.uniform(10, 20))  
 
         # Choix source 
         source = random.choice([0, 1, 2, 3])

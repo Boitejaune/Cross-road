@@ -79,7 +79,7 @@ class CrossroadSimulation:
         """Démarre un serveur socket pour recevoir les données de Coordinator."""
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind(("localhost", 12346))  # Écoute sur le port 12345
-        server.listen(5)
+        server.listen(1)
         print("[INFO] Serveur Display en écoute...")
 
         while self.running:
